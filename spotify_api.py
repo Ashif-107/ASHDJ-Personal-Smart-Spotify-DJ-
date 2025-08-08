@@ -21,7 +21,7 @@ def authenticate_spotify():
         redirect_uri=redirect_uri,
         scope=scope,
         open_browser=True,
-        show_dialog=True  # This forces the login dialog to appear
+        show_dialog=True 
     )
 
     try:

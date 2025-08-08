@@ -1,5 +1,5 @@
 from spotify_api import authenticate_spotify
-from menu import run_interactive_menu
+from commands.menu import run_interactive_menu
 
 
 def main():

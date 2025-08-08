@@ -5,11 +5,14 @@ This module contains the CLI menu and user interaction functions.
 """
 
 import sys
-from spotify_controls import (
+from commands.spotify_controls import (
     play_song, pause_song, next_track, previous_track, 
-    current_status, toggle_shuffle, toggle_repeat, add_to_queue
+    current_status, toggle_shuffle, toggle_repeat, add_to_queue,
+    play_similar_song, play_mood_songs
 )
 
+from algorithms.knn_recommender import find_similar_tracks
+from algorithms.intent_parser import parse_intent
 
 def print_help():
     """Display the help menu with available commands."""
@@ -26,6 +29,18 @@ queue [song name]     ➕  Adds song to playback queue
 status                🎵  Shows current playing song
 help                  📜  Shows this message
 exit                  ❌  Exits the app
+
+🤖 Smart Commands (Natural Language):
+-------------------------------------
+"play something like [song] by [artist]"  🎯  Find similar songs
+"play songs like [song]"                  🎯  Find similar songs  
+"play happy/sad/chill music"              🎭  Mood-based playlists
+
+Examples:
+- "play something like starboy by the weeknd"
+- "play songs like bohemian rhapsody"
+- "play happy music"
+- "play chill songs"
 """)
 
 
@@ -70,8 +85,16 @@ def process_command(sp, command):
         sys.exit()
 
     else:
-        print("❓ Unknown command. Type 'help' to see options.")
+        intent_data = parse_intent(command)
 
+        if intent_data["intent"] == "play_similar":
+            play_similar_song(sp, intent_data["track_query"])
+        elif intent_data["intent"] == "play_mood":
+            play_mood_songs(sp, intent_data["mood"])
+        elif intent_data["intent"] == "play_exact":
+            play_song(sp, intent_data["query"])
+        else:
+            print("❓ Unknown command. Type 'help' to see options.")
 
 def run_interactive_menu(sp):
     """Run the main interactive command loop."""
