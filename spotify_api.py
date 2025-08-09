@@ -13,19 +13,31 @@ def authenticate_spotify():
     if not all([client_id, client_secret, redirect_uri]):
         raise ValueError("Missing Spotify credentials in environment variables")
 
-    scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing streaming"
+    scope = " ".join([
+    "user-read-private",
+    "user-read-email",
+    "user-library-read",
+    "user-top-read",
+    "playlist-read-private",
+    "playlist-read-collaborative",
+    "user-read-playback-state",
+    "user-modify-playback-state",
+    "user-read-currently-playing",
+    "streaming"
+])
 
-    sp_oauth = SpotifyOAuth(
+    # Create auth manager with cache
+    cache_path = ".cache"
+    auth_manager = SpotifyOAuth(
         client_id=client_id,
         client_secret=client_secret,
         redirect_uri=redirect_uri,
         scope=scope,
-        open_browser=True,
-        show_dialog=True 
+        cache_path=cache_path
     )
 
     try:
-        sp = spotipy.Spotify(auth_manager=sp_oauth)
+        sp = spotipy.Spotify(auth_manager=auth_manager)
         # Test the connection
         sp.current_user()
         return sp

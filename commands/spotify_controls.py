@@ -5,7 +5,6 @@ This module contains all the Spotify playback control functions.
 """
 
 from algorithms.knn_recommender import find_similar_tracks
-from algorithms.artist_corrections import correct_artist_name
 
 
 def play_song(sp, query=None):
@@ -25,12 +24,11 @@ def play_song(sp, query=None):
             results = sp.search(q=query, limit=5, type='track')
             tracks = results['tracks']['items']
         
-        # Strategy 3: Try with artist name corrections
-        if not tracks:
-            corrected_query = correct_artist_name(query)
-            if corrected_query != query.lower():  # Only search if correction was made
-                results = sp.search(q=corrected_query, limit=5, type='track')
-                tracks = results['tracks']['items']
+        # Strategy 3: Handle common artist name variations
+        if not tracks and 'weekend' in query.lower():
+            modified_query = query.lower().replace('weekend', 'weeknd')
+            results = sp.search(q=modified_query, limit=5, type='track')
+            tracks = results['tracks']['items']
 
         if tracks:
             # Pick the top result
@@ -160,42 +158,38 @@ def add_to_queue(sp, query):
 # For the ML based Smart Algoritms
 
 
-def play_similar_song(sp, query):
-    """Search a song, get audio features, and recommend 5 similar songs via KNN."""
+def play_similar_song(sp, track_query):
+    """
+    Search for a track and play 5 similar tracks based on audio features.
+    """
     try:
-        # Try multiple search strategies to find the song
-        track = None
-        
-        # Strategy 1: Search with track: prefix (most restrictive)
-        results = sp.search(q=f"track:{query}", type='track', limit=1)
-        if results['tracks']['items']:
-            track = results['tracks']['items'][0]
-        
-        # Strategy 2: Search without prefix if first attempt fails
-        if not track:
-            results = sp.search(q=query, type='track', limit=5)
-            if results['tracks']['items']:
-                track = results['tracks']['items'][0]
-        
-        # Strategy 3: Try with artist name corrections
-        if not track:
-            corrected_query = correct_artist_name(query)
-            if corrected_query != query.lower():  # Only search if correction was made
-                results = sp.search(q=corrected_query, type='track', limit=5)
-                if results['tracks']['items']:
-                    track = results['tracks']['items'][0]
-        
-        if not track:
-            print("❌ No song found. Try a simpler name or artist.")
-            return
-            
-        similar_uris = find_similar_tracks(sp, track)
+        print(f"🔎 Searching for track: {track_query}")
+        result = sp.search(q=track_query, type='track', limit=1)
 
-        if similar_uris:
-            sp.start_playback(uris=similar_uris)
-            print(f"🎧 Playing songs similar to: {track['name']} by {track['artists'][0]['name']}")
-        else:
-            print("😓 Couldn't find similar songs.")
+        if not result['tracks']['items']:
+            print("❌ Track not found.")
+            return
+
+        track = result['tracks']['items'][0]
+        track_id = track['id']
+        track_name = track['name']
+        artist_name = track['artists'][0]['name']
+
+        print(f"🎯 Found: {track_name} by {artist_name}")
+        print("🎧 Finding similar tracks...")
+
+        similar_tracks = find_similar_tracks(sp, track_id)
+
+        if not similar_tracks:
+            print("⚠️ No similar tracks found.")
+            return
+
+        for uri, name, artist in similar_tracks:
+            print(f"➕ Queuing: {name} by {artist}")
+            sp.add_to_queue(uri)
+
+        # Start playback from the first recommended track
+        sp.start_playback(uris=[similar_tracks[0][0]])
 
     except Exception as e:
         print(f"❌ Error in play_similar_song: {e}")
