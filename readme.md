@@ -12,6 +12,21 @@ A CLI-based music recommendation system that acts as an intelligent DJ, understa
   - **Artist characteristics** (popularity, follower count influence features)
   - **Track metadata** (duration, release year, popularity affect feature estimation)
 
+            Core Audio Features Used
+            The system analyzes 11 key audio characteristics:
+
+            Danceability: How suitable a track is for dancing (0.0-1.0)
+            Energy: Perceptual measure of intensity and power (0.0-1.0)
+            Key: The key the track is in (0-11, normalized to 0.0-1.0)
+            Loudness: Overall loudness in dB (normalized to 0.0-1.0)
+            Mode: Modality (major=1, minor=0)
+            Speechiness: Presence of spoken words (0.0-1.0)
+            Acousticness: Confidence measure of acoustic nature (0.0-1.0)
+            Instrumentalness: Predicts whether track contains no vocals (0.0-1.0)
+            Liveness: Detects presence of audience in recording (0.0-1.0)
+            Valence: Musical positivity/happiness (0.0-1.0)
+            Tempo: Overall estimated tempo in BPM (normalized to 0.0-1.0)
+
 ### 2. **Natural Language Intent Parser**
 - Parses conversational input like "play something like Bohemian Rhapsody" or "play sad music"
 - Extracts intent types: `play_similar`, `play_mood`, `play_exact`
