@@ -52,20 +52,13 @@ def try_alternative_audio_features(sp, track_id):
     """
     Try multiple methods to get audio features for a track.
     """
-    # Method 1: Try the original audio_features endpoint (might work for some regions/apps)
-    try:
-        features_response = sp.audio_features([track_id])
-        if features_response and features_response[0]:
-            return features_response[0]
-    except Exception as e:
-        print(f"⚠️  audio_features endpoint failed: {e}")
     
-    # Method 2: Use audio analysis
+    # Method 1: Use audio analysis
     analysis_features = get_audio_features_from_analysis(sp, track_id)
     if analysis_features:
         return analysis_features
     
-    # Method 3: Use track popularity and other metadata to estimate features
+    # Method 2: Use track popularity and other metadata to estimate features
     try:
         track_info = sp.track(track_id)
         if track_info:
@@ -403,7 +396,7 @@ def find_similar_tracks(sp, current_track_id):
                 similar_tracks.append((track['uri'], track['name'], track['artist']))
                 
         print(f"✅ Found {len(similar_tracks)} similar tracks using enhanced audio feature analysis")
-        return similar_tracks[:5]  # Return top 5
+        return similar_tracks[:6]  # Return top 6
 
     except Exception as e:
         print(f"❌ Error in find_similar_tracks: {e}")

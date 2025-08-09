@@ -164,7 +164,7 @@ def play_similar_song(sp, track_query):
     """
     try:
         print(f"🔎 Searching for track: {track_query}")
-        result = sp.search(q=track_query, type='track', limit=1)
+        result = sp.search(q=track_query, type='track')
 
         if not result['tracks']['items']:
             print("❌ Track not found.")
@@ -184,12 +184,13 @@ def play_similar_song(sp, track_query):
             print("⚠️ No similar tracks found.")
             return
 
-        for uri, name, artist in similar_tracks:
-            print(f"➕ Queuing: {name} by {artist}")
-            sp.add_to_queue(uri)
+        # Build a fresh list (seed track + similar tracks)
+        new_queue = [uri for uri, _, _ in similar_tracks]
 
-        # Start playback from the first recommended track
-        sp.start_playback(uris=[similar_tracks[0][0]])
+        # Start playback with the full list, replacing the current queue
+        sp.start_playback(uris=new_queue)
+
+        print(f"💫 Playing {len(new_queue)} recommended tracks.")
 
     except Exception as e:
         print(f"❌ Error in play_similar_song: {e}")
@@ -214,3 +215,7 @@ def play_mood_songs(sp, mood):
         print(f"💫 Playing {mood.capitalize()} mood playlist.")
     else:
         print("❌ Couldn't find mood-based songs.")
+        
+        
+        
+        
