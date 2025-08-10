@@ -1,45 +1,42 @@
 import tkinter as tk
-from tkinter import scrolledtext
 from PIL import Image, ImageTk, ImageSequence
 import threading
-import queue
 
 from spotify_api import authenticate_spotify
 from commands.menu import run_interactive_menu
 
-output_queue = queue.Queue()
 
 class AnimeTerminalApp:
     def __init__(self, root, sp):
         self.sp = sp
         self.root = root
         self.root.title("Spotify Anime Assistant")
-        self.root.geometry("800x500")
-        self.root.configure(bg="#222")
 
-        # Anime GIF display
-        self.gif_label = tk.Label(self.root, bg="#222")
-        self.gif_label.pack(side="left", padx=10, pady=10)
-        self.load_gif("anime_girl.gif")
+        # Set window size to match GIF dimensions
+        self.window_width = 500*2
+        self.window_height = 291*2
+        self.root.geometry(f"{self.window_width}x{self.window_height}")
+        self.root.configure(bg="black")
 
-        # Terminal area
-        self.terminal = scrolledtext.ScrolledText(
-            self.root, wrap=tk.WORD, bg="#111", fg="white", font=("Consolas", 12)
-        )
-        self.terminal.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+        # Full-size GIF label
+        self.gif_label = tk.Label(self.root, bg="black")
+        self.gif_label.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        # Input box
-        self.entry = tk.Entry(self.root, font=("Consolas", 12))
-        self.entry.pack(side="bottom", fill="x", padx=10, pady=10)
+        # Input box at the bottom
+        self.entry = tk.Entry(self.root, font=("Consolas", 12),
+                              bg="black", fg="white", insertbackground="white")
+        self.entry.place(relx=0, rely=0.95, relwidth=1, relheight=0.05)
         self.entry.bind("<Return>", self.send_command)
 
-        # Start updating output
-        self.root.after(100, self.update_terminal)
+        self.load_gif("anime_girl.gif")
 
     def load_gif(self, gif_path):
         gif = Image.open(gif_path)
+        # Resize all frames to match window size
         self.gif_frames = [
-            ImageTk.PhotoImage(frame.copy().convert("RGBA")) for frame in ImageSequence.Iterator(gif)
+            ImageTk.PhotoImage(frame.copy().convert("RGBA").resize(
+                (self.window_width, self.window_height), Image.LANCZOS))
+            for frame in ImageSequence.Iterator(gif)
         ]
         self.gif_index = 0
         self.animate_gif()
@@ -52,17 +49,11 @@ class AnimeTerminalApp:
     def send_command(self, event):
         command = self.entry.get().strip()
         self.entry.delete(0, tk.END)
-        output_queue.put(f"> {command}")
         threading.Thread(target=self.process_command, args=(command,)).start()
 
     def process_command(self, command):
-        run_interactive_menu(self.sp, single_command=command, output_func=output_queue.put)
-
-    def update_terminal(self):
-        while not output_queue.empty():
-            self.terminal.insert(tk.END, output_queue.get() + "\n")
-            self.terminal.see(tk.END)
-        self.root.after(100, self.update_terminal)
+        # No printing to terminal to avoid Unicode errors
+        run_interactive_menu(self.sp, single_command=command, output_func=lambda msg: None)
 
 
 def main():
