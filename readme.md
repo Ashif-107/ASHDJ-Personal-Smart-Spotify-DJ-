@@ -6,7 +6,7 @@ A CLI-based music recommendation system that acts as an intelligent DJ, understa
 
 ### 1. **Enhanced Audio Feature Analysis (KNN Recommender)**
 
-# When Spotify's audio features API is limited, we created an intelligent estimation system that analyzes track metadata, genres, artist information, and temporal patterns to generate realistic audio features.
+#### When Spotify's audio features API is limited, we created an intelligent estimation system that analyzes track metadata, genres, artist information, and temporal patterns to generate realistic audio features.
 
 - Uses **K-Nearest Neighbors (KNN)** with 11 audio features: danceability, energy, valence, tempo, acousticness, etc.
 - **Fallback Feature Estimation**: When Spotify's audio analysis API fails, the system intelligently estimates features using:
