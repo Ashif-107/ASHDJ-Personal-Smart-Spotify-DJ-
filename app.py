@@ -57,11 +57,6 @@ class AnimeTerminalApp:
         threading.Thread(target=self.process_command, args=(command,), daemon=True).start()
 
     def process_command(self, command):
-        speak(command)  # Using convenient DJ announcement function
-        def speak_and_print(msg):
-            print(msg)  # Still show in terminal
-            
-        speak_and_print(command)
         run_interactive_menu(self.sp, single_command=command, output_func=lambda msg: None)
 
     def start_voice_thread(self):

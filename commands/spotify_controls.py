@@ -6,6 +6,7 @@ This module contains all the Spotify playback control functions.
 
 from algorithms.knn_recommender import find_similar_tracks
 
+from elevenlabs_api import speak
 
 def play_song(sp, query=None):
     """Play a song by search query or resume current playback."""
@@ -56,12 +57,14 @@ def play_song(sp, query=None):
                         added_count += 1
                 
                 print(f"▶️ Now playing: {track_name} by {artist_name}")
+                speak(f"Now playing {track_name} by {artist_name}, Ashif senpai!")
                 
             except Exception:
                 # Fallback: play from album context with shuffle only
                 sp.shuffle(True)
                 sp.start_playback(context_uri=album_uri, offset={"uri": track_uri})
                 print(f"▶️ Now playing: {track_name} by {artist_name}")
+                speak(f"Now playing {track_name} by {artist_name}, Ashif senpai!")
 
         else:
             print("❌ No song found. Try a simpler name or artist.")
