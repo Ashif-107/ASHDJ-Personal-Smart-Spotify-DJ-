@@ -6,7 +6,7 @@ import speech_recognition as sr
 from spotify_api import authenticate_spotify
 from commands.menu import run_interactive_menu
 
-from elevenlabs_api import speak, announce_playing
+from elevenlabs_api import speak
 
 class AnimeTerminalApp:
     def __init__(self, root, sp):
@@ -57,7 +57,7 @@ class AnimeTerminalApp:
         threading.Thread(target=self.process_command, args=(command,), daemon=True).start()
 
     def process_command(self, command):
-        announce_playing(command)  # Using convenient DJ announcement function
+        speak(command)  # Using convenient DJ announcement function
         def speak_and_print(msg):
             print(msg)  # Still show in terminal
             

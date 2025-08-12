@@ -1,18 +1,8 @@
 import os
-import tempfile
+import sys
+import io
 import pygame
-from elevenlabs import ElevenLabs, save
-
-# Import TTS configuration
-try:
-    from tts_config import DJ_PHRASES
-except ImportError:
-    # Fallback values if config file is missing
-    DJ_PHRASES = {
-        "playing": "Now playing {}, Ashif senpai!",
-        "paused": "Music paused, Ashif senpai!",
-        "error": "Oops! Something went wrong, Ashif senpai!"
-    }
+from elevenlabs import ElevenLabs
 
 # ====== ElevenLabs Setup ======
 api_key = os.getenv("ELEVENLABS_API_KEY")
@@ -26,48 +16,33 @@ pygame.mixer.init()
 
 def speak(text, voice="gARvXPexe5VF3cKZBian", model="eleven_multilingual_v2"):
     """
-    Speak text in Javenglish style using ElevenLabs TTS.
+    Speak text in anime-style voice using ElevenLabs TTS without saving to disk.
     """
     try:
-        # Generate audio from ElevenLabs
+        # Generate audio from ElevenLabs (streaming response as bytes)
         audio = client.text_to_speech.convert(
             voice_id=voice,
             model_id=model,
             text=text
         )
 
-        # Save temporary file
-        temp_path = os.path.join(tempfile.gettempdir(), "tts_eleven.mp3")
-        save(audio, temp_path)
+        # Convert audio generator to bytes in memory
+        audio_bytes = b"".join(audio)
 
-        # Load and play using pygame (works reliably on Windows)
-        pygame.mixer.music.load(temp_path)
+        # Load audio directly from memory (BytesIO)
+        audio_stream = io.BytesIO(audio_bytes)
+
+        # Play audio directly
+        pygame.mixer.music.load(audio_stream, "mp3")
         pygame.mixer.music.play()
-        
-        # Wait for playback to finish
+
+        # Wait until audio finishes playing
         while pygame.mixer.music.get_busy():
             pygame.time.wait(100)
 
     except Exception as e:
-        print(f"❌ ElevenLabs TTS error: {e}")
+        print(f"❌ ElevenLabs TTS error: {e}", file=sys.__stderr__)
 
-def speak_dj_phrase(phrase_key, *args):
-    """Speak a predefined DJ phrase with anime voice"""
-    if phrase_key in DJ_PHRASES:
-        text = DJ_PHRASES[phrase_key].format(*args)
-        speak(text)
-    else:
-        speak(f"Unknown phrase: {phrase_key}")
-
-# Convenience functions for common DJ actions
-def announce_playing(song_name):
-    """Announce that a song is now playing with cute anime voice"""
-    speak_dj_phrase("playing", song_name)
-
-def announce_paused():
-    """Announce that music is paused with anime voice"""
-    speak_dj_phrase("paused")
-
-def announce_error():
-    """Announce an error occurred with anime voice"""
-    speak_dj_phrase("error")
+# Example usage
+if __name__ == "__main__":
+    print("Hello Ashif! Your anime DJ is ready to rock!")
