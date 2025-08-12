@@ -60,6 +60,7 @@ class AnimeTerminalApp:
         announce_playing(command)  # Using convenient DJ announcement function
         def speak_and_print(msg):
             print(msg)  # Still show in terminal
+            
         speak_and_print(command)
         run_interactive_menu(self.sp, single_command=command, output_func=lambda msg: None)
 
