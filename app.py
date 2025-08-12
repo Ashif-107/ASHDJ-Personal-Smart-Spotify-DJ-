@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageSequence
 import threading
+import speech_recognition as sr
 
 from spotify_api import authenticate_spotify
 from commands.menu import run_interactive_menu
@@ -12,9 +13,9 @@ class AnimeTerminalApp:
         self.root = root
         self.root.title("Spotify Anime Assistant")
 
-        # Set window size to match GIF dimensions
-        self.window_width = 500*2
-        self.window_height = 291*2
+        # Window size
+        self.window_width = 500 * 2
+        self.window_height = 291 * 2
         self.root.geometry(f"{self.window_width}x{self.window_height}")
         self.root.configure(bg="black")
 
@@ -22,17 +23,20 @@ class AnimeTerminalApp:
         self.gif_label = tk.Label(self.root, bg="black")
         self.gif_label.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        # Input box at the bottom
+        # Input box
         self.entry = tk.Entry(self.root, font=("Consolas", 12),
                               bg="black", fg="white", insertbackground="white")
         self.entry.place(relx=0, rely=0.95, relwidth=1, relheight=0.05)
         self.entry.bind("<Return>", self.send_command)
 
+        # Bind keyboard shortcut for voice (Ctrl+M)
+        self.root.bind("<Control-m>", lambda e: self.start_voice_thread())
+        self.root.bind("<Control-M>", lambda e: self.start_voice_thread())  # Uppercase M
+
         self.load_gif("anime_girl.gif")
 
     def load_gif(self, gif_path):
         gif = Image.open(gif_path)
-        # Resize all frames to match window size
         self.gif_frames = [
             ImageTk.PhotoImage(frame.copy().convert("RGBA").resize(
                 (self.window_width, self.window_height), Image.LANCZOS))
@@ -49,11 +53,30 @@ class AnimeTerminalApp:
     def send_command(self, event):
         command = self.entry.get().strip()
         self.entry.delete(0, tk.END)
-        threading.Thread(target=self.process_command, args=(command,)).start()
+        threading.Thread(target=self.process_command, args=(command,), daemon=True).start()
 
     def process_command(self, command):
-        # No printing to terminal to avoid Unicode errors
         run_interactive_menu(self.sp, single_command=command, output_func=lambda msg: None)
+
+    def start_voice_thread(self):
+        """Start listening in a separate thread to avoid freezing UI"""
+        threading.Thread(target=self.listen_voice, daemon=True).start()
+
+    def listen_voice(self):
+        recognizer = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("🎙 Listening for command...")
+            try:
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=7)
+                command = recognizer.recognize_google(audio)
+                print(f"✅ You said: {command}")
+                self.process_command(command)
+            except sr.UnknownValueError:
+                print("❌ Could not understand audio.")
+            except sr.RequestError:
+                print("❌ Speech recognition service unavailable.")
+            except sr.WaitTimeoutError:
+                print("⌛ Listening timed out.")
 
 
 def main():
