@@ -60,5 +60,5 @@ The combination of advanced NLP intent parsing with sophisticated audio feature 
 
 
 ## Cool GUI 
-![alt text](image.png)
+![alt text](assets/anime_girl.gif)
 
