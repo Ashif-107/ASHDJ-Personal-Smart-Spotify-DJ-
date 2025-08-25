@@ -2,6 +2,8 @@
 
 A CLI-based music recommendation system that acts as an intelligent DJ, understanding natural language requests and providing sophisticated audio feature-based recommendations.
 
+With Voice Command controls and a Live GUI 
+
 ## How the Algorithms Work
 
 ### 1. **Enhanced Audio Feature Analysis (KNN Recommender)**
@@ -31,7 +33,7 @@ A CLI-based music recommendation system that acts as an intelligent DJ, understa
             Tempo: Overall estimated tempo in BPM (normalized to 0.0-1.0)
 
 ### 2. **Natural Language Intent Parser**
-- Parses conversational input like "play something like Bohemian Rhapsody" or "play sad music"
+- Parses conversational input like "play something like Summertime Sadness" or "play sad music"
 - Extracts intent types: `play_similar`, `play_mood`, `play_exact`
 - Supports mood-based requests (happy, sad, chill, dance, romantic)
 
@@ -43,7 +45,6 @@ A CLI-based music recommendation system that acts as an intelligent DJ, understa
 ## What Makes This Unique
 
 Unlike typical music recommendation systems that rely solely on:
-- **Collaborative filtering** (what others like you listen to)
 - **Simple popularity rankings**
 - **Basic genre matching**
 
@@ -56,3 +57,8 @@ This system provides:
 5. **Real-time Adaptation**: Dynamically adjusts to current track context and user mood
 
 The combination of advanced NLP intent parsing with sophisticated audio feature analysis creates a more intelligent and reliable music discovery experience.
+
+
+## Cool GUI 
+![alt text](image.png)
+

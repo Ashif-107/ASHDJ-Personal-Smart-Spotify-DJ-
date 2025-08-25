@@ -34,7 +34,7 @@ class AnimeTerminalApp:
         self.root.bind("<Control-m>", lambda e: self.start_voice_thread())
         self.root.bind("<Control-M>", lambda e: self.start_voice_thread())  # Uppercase M
 
-        self.load_gif("anime_girl.gif")
+        self.load_gif("assets/anime_girl.gif")
 
     def load_gif(self, gif_path):
         gif = Image.open(gif_path)
